@@ -1,77 +1,125 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local StarterGui = game:GetService("StarterGui")
-local HttpService = game:GetService("HttpService")
+local UserInputService = game:GetService("UserInputService")
 
--- ScreenGui Setup
+-- Edit your base position here
+local baseCFrame = CFrame.new(-50, 10, -50)
+
+-- GUI Setup
 local gui = Instance.new("ScreenGui", game.CoreGui)
-gui.Name = "SaintKeySystem"
+gui.Name = "SaintBrainrotHub"
 
 local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0, 450, 0, 300)
+frame.Size = UDim2.new(0, 450, 0, 350)
 frame.Position = UDim2.new(0.35, 0, 0.3, 0)
-frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-frame.BorderSizePixel = 0
-
-local stroke = Instance.new("UIStroke", frame)
-stroke.Color = Color3.fromRGB(60, 60, 60)
-stroke.Thickness = 2
+frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 
 local corner = Instance.new("UICorner", frame)
-corner.CornerRadius = UDim.new(0, 8)
+corner.CornerRadius = UDim.new(0, 10)
 
--- Top Title
+local stroke = Instance.new("UIStroke", frame)
+stroke.Color = Color3.fromRGB(255, 255, 255)
+stroke.Thickness = 2
+
 local title = Instance.new("TextLabel", frame)
-title.Size = UDim2.new(1, 0, 0, 40)
-title.Position = UDim2.new(0,0,0,0)
-title.BackgroundTransparency = 1
-title.Text = "Saint's Brainrot | Key System"
+title.Size = UDim2.new(1, 0, 0, 50)
+title.Text = "Saint's Brainrot Hub 🍌"
 title.TextColor3 = Color3.fromRGB(255, 255, 255)
-title.TextScaled = true
 title.Font = Enum.Font.GothamBold
+title.TextScaled = true
+title.BackgroundTransparency = 1
+
+-- WalkSpeed Section
+local wsBox = Instance.new("TextBox", frame)
+wsBox.Size = UDim2.new(0.8, 0, 0, 45)
+wsBox.Position = UDim2.new(0.1, 0, 0.2, 0)
+wsBox.PlaceholderText = "WalkSpeed (Default 16)"
+wsBox.Text = ""
+wsBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+wsBox.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+wsBox.TextScaled = true
+wsBox.Font = Enum.Font.Gotham
+wsBox.ClearTextOnFocus = false
+Instance.new("UICorner", wsBox).CornerRadius = UDim.new(0, 8)
+
+local wsBtn = Instance.new("TextButton", frame)
+wsBtn.Size = UDim2.new(0.8, 0, 0, 45)
+wsBtn.Position = UDim2.new(0.1, 0, 0.35, 0)
+wsBtn.Text = "✅ Set WalkSpeed"
+wsBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+wsBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+wsBtn.TextScaled = true
+wsBtn.Font = Enum.Font.GothamBold
+Instance.new("UICorner", wsBtn).CornerRadius = UDim.new(0, 8)
+
+wsBtn.MouseButton1Click:Connect(function()
+    local speed = tonumber(wsBox.Text)
+    if speed and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+        LocalPlayer.Character.Humanoid.WalkSpeed = speed
+        StarterGui:SetCore("SendNotification", {
+            Title = "✅ WalkSpeed Updated",
+            Text = "WalkSpeed set to " .. speed,
+            Duration = 3
+        })
+    else
+        StarterGui:SetCore("SendNotification", {
+            Title = "❌ Invalid Speed",
+            Text = "Please input a valid number",
+            Duration = 3
+        })
+    end
+end)
+
+-- Instant Steal (Teleport to Base)
+local stealBtn = Instance.new("TextButton", frame)
+stealBtn.Size = UDim2.new(0.8, 0, 0, 45)
+stealBtn.Position = UDim2.new(0.1, 0, 0.55, 0)
+stealBtn.Text = "💀 Teleport to Base"
+stealBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+stealBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+stealBtn.TextScaled = true
+stealBtn.Font = Enum.Font.GothamBold
+Instance.new("UICorner", stealBtn).CornerRadius = UDim.new(0, 8)
+
+stealBtn.MouseButton1Click:Connect(function()
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        LocalPlayer.Character.HumanoidRootPart.CFrame = baseCFrame
+        StarterGui:SetCore("SendNotification", {
+            Title = "✅ Teleported",
+            Text = "You have been sent to base",
+            Duration = 3
+        })
+    end
+end)
 
 -- Close Button
 local close = Instance.new("TextButton", frame)
 close.Size = UDim2.new(0, 40, 0, 40)
 close.Position = UDim2.new(1, -45, 0, 5)
-close.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 close.Text = "X"
-close.TextColor3 = Color3.new(1,1,1)
+close.TextColor3 = Color3.fromRGB(255, 255, 255)
 close.Font = Enum.Font.GothamBold
-close.TextScaled = true
+close.BackgroundColor3 = Color3.fromRGB(30,30,30)
+Instance.new("UICorner", close).CornerRadius = UDim.new(0,6)
 close.MouseButton1Click:Connect(function() gui:Destroy() end)
-local closeCorner = Instance.new("UICorner", close)
-closeCorner.CornerRadius = UDim.new(0, 6)
 
--- TextBox
-local box = Instance.new("TextBox", frame)
-box.Size = UDim2.new(0.9, 0, 0, 45)
-box.Position = UDim2.new(0.05, 0, 0.25, 0)
-box.PlaceholderText = "Enter Key"
-box.Text = ""
-box.TextColor3 = Color3.new(1,1,1)
-box.BackgroundColor3 = Color3.fromRGB(35,35,35)
-box.TextScaled = true
-box.Font = Enum.Font.Gotham
-local boxCorner = Instance.new("UICorner", box)
-boxCorner.CornerRadius = UDim.new(0, 6)
-
--- Check Key Button
-local check = Instance.new("TextButton", frame)
-check.Size = UDim2.new(0.9, 0, 0, 45)
-check.Position = UDim2.new(0.05, 0, 0.4, 0)
-check.Text = "Check Key"
-check.TextColor3 = Color3.new(1,1,1)
-check.BackgroundColor3 = Color3.fromRGB(40,40,40)
-check.Font = Enum.Font.GothamBold
-check.TextScaled = true
-local checkCorner = Instance.new("UICorner", check)
-checkCorner.CornerRadius = UDim.new(0, 6)
-
--- User PFP + Username + Free Version Footer
-local userIcon = Instance.new("ImageLabel", frame)
-userIcon.Size = UDim2.new(0, 50, 0, 50)
-userIcon.Position = UDim2.new(0.03,0,0.78,0)
-userIcon.BackgroundTransparency = 1
-
-local username = Instance.new("TextLabel", frame)
+-- Draggable
+local dragging, dragStart, startPos
+frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then dragging = false end
+        end)
+    end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+                                   startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
