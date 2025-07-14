@@ -1,138 +1,135 @@
--- Saint's Brainrot Hub Key System with Teleport on Success
-
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local TweenService = game:GetService("TweenService")
 local StarterGui = game:GetService("StarterGui")
+local HttpService = game:GetService("HttpService")
 local UserInputService = game:GetService("UserInputService")
 
--- Teleport base CFrame (edit this to your base position)
-local baseCFrame = CFrame.new(-50, 10, -50) 
+-- Settings:
+local correctKey = "saint1451-9"
+local hubURL = "https://raw.githubusercontent.com/waserarr/brainrot-hub/main/hub.lua"
 
 -- Create GUI
-local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+local gui = Instance.new("ScreenGui", game.CoreGui)
+gui.Name = "SaintKeySystem"
 
-local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = UDim2.new(0, 400, 0, 300)
-MainFrame.Position = UDim2.new(0.35, 0, 0.3, 0)
-MainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-MainFrame.BorderSizePixel = 0
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 450, 0, 320)
+frame.Position = UDim2.new(0.35, 0, 0.3, 0)
+frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 
-local Shadow = Instance.new("ImageLabel", MainFrame)
-Shadow.AnchorPoint = Vector2.new(0.5, 0.5)
-Shadow.Position = UDim2.new(0.5, 0, 0.5, 0)
-Shadow.Size = UDim2.new(1, 60, 1, 60)
-Shadow.BackgroundTransparency = 1
-Shadow.Image = "rbxassetid://5554236805"
-Shadow.ImageTransparency = 0.4
-Shadow.ZIndex = -1
+local stroke = Instance.new("UIStroke", frame)
+stroke.Color = Color3.fromRGB(60, 60, 60)
+stroke.Thickness = 2
 
-local UICorner = Instance.new("UICorner", MainFrame)
-UICorner.CornerRadius = UDim.new(0, 12)
+local corner = Instance.new("UICorner", frame)
+corner.CornerRadius = UDim.new(0, 8)
 
-local UIStroke = Instance.new("UIStroke", MainFrame)
-UIStroke.Color = Color3.fromRGB(255, 255, 255)
-UIStroke.Thickness = 2
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, 0, 0, 40)
+title.Text = "Saint's Brainrot | Key System"
+title.TextColor3 = Color3.new(1,1,1)
+title.Font = Enum.Font.GothamBold
+title.TextScaled = true
+title.BackgroundTransparency = 1
 
-local Title = Instance.new("TextLabel", MainFrame)
-Title.Size = UDim2.new(1, 0, 0, 50)
-Title.BackgroundTransparency = 1
-Title.Text = "Brainrot Hub 🍌"
-Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.Font = Enum.Font.GothamBlack
-Title.TextScaled = true
+-- Close Button
+local close = Instance.new("TextButton", frame)
+close.Size = UDim2.new(0, 40, 0, 40)
+close.Position = UDim2.new(1, -45, 0, 5)
+close.Text = "X"
+close.TextColor3 = Color3.new(1,1,1)
+close.Font = Enum.Font.GothamBold
+close.BackgroundColor3 = Color3.fromRGB(30,30,30)
+local closeCorner = Instance.new("UICorner", close)
+closeCorner.CornerRadius = UDim.new(0,6)
+close.MouseButton1Click:Connect(function() gui:Destroy() end)
 
-local TextBox = Instance.new("TextBox", MainFrame)
-TextBox.PlaceholderText = "Enter Key Here"
-TextBox.Text = ""
-TextBox.Size = UDim2.new(0.9, 0, 0, 40)
-TextBox.Position = UDim2.new(0.05, 0, 0.3, 0)
-TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-TextBox.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-TextBox.TextScaled = true
-TextBox.Font = Enum.Font.Gotham
-TextBox.ClearTextOnFocus = false
-local TextBoxCorner = Instance.new("UICorner", TextBox)
-TextBoxCorner.CornerRadius = UDim.new(0, 8)
+-- Textbox
+local box = Instance.new("TextBox", frame)
+box.Size = UDim2.new(0.9, 0, 0, 45)
+box.Position = UDim2.new(0.05,0,0.25,0)
+box.PlaceholderText = "Enter Key"
+box.Text = ""
+box.TextColor3 = Color3.new(1,1,1)
+box.BackgroundColor3 = Color3.fromRGB(35,35,35)
+box.TextScaled = true
+box.ClearTextOnFocus = false
+box.Font = Enum.Font.Gotham
+Instance.new("UICorner", box).CornerRadius = UDim.new(0,6)
 
-local function createButton(text, pos, callback)
-    local Button = Instance.new("TextButton", MainFrame)
-    Button.Size = UDim2.new(0.4, 0, 0, 40)
-    Button.Position = pos
-    Button.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-    Button.Text = text
-    Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Button.Font = Enum.Font.GothamBold
-    Button.TextScaled = true
+-- Check Key Button
+local check = Instance.new("TextButton", frame)
+check.Size = UDim2.new(0.9, 0, 0, 45)
+check.Position = UDim2.new(0.05,0,0.42,0)
+check.Text = "Check Key"
+check.TextColor3 = Color3.new(1,1,1)
+check.BackgroundColor3 = Color3.fromRGB(40,40,40)
+check.Font = Enum.Font.GothamBold
+check.TextScaled = true
+Instance.new("UICorner", check).CornerRadius = UDim.new(0,6)
 
-    local corner = Instance.new("UICorner", Button)
-    corner.CornerRadius = UDim.new(0, 8)
+-- Avatar + Username
+local avatar = Instance.new("ImageLabel", frame)
+avatar.Size = UDim2.new(0,50,0,50)
+avatar.Position = UDim2.new(0.03,0,0.78,0)
+avatar.BackgroundTransparency = 1
+avatar.Image = "rbxthumb://type=AvatarHeadShot&id="..LocalPlayer.UserId.."&w=420&h=420"
 
-    local stroke = Instance.new("UIStroke", Button)
-    stroke.Color = Color3.fromRGB(255, 255, 255)
-    stroke.Thickness = 1.5
+local user = Instance.new("TextLabel", frame)
+user.Size = UDim2.new(0,200,0,25)
+user.Position = UDim2.new(0.15,0,0.78,0)
+user.Text = LocalPlayer.DisplayName.." ("..LocalPlayer.Name..")"
+user.Font = Enum.Font.Gotham
+user.TextScaled = true
+user.TextColor3 = Color3.new(1,1,1)
+user.BackgroundTransparency = 1
+user.TextXAlignment = Enum.TextXAlignment.Left
 
-    Button.MouseEnter:Connect(function()
-        TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 40, 40)}):Play()
-    end)
-    Button.MouseLeave:Connect(function()
-        TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(20, 20, 20)}):Play()
-    end)
+local free = Instance.new("TextLabel", frame)
+free.Size = UDim2.new(0,200,0,25)
+free.Position = UDim2.new(0.15,0,0.88,0)
+free.Text = "Free Version"
+free.Font = Enum.Font.Gotham
+free.TextScaled = true
+free.TextColor3 = Color3.fromRGB(120,255,120)
+free.BackgroundTransparency = 1
+free.TextXAlignment = Enum.TextXAlignment.Left
 
-    Button.MouseButton1Click:Connect(callback)
-    return Button
-end
-
--- "Get Key" button
-createButton("Get Key", UDim2.new(0.05, 0, 0.6, 0), function()
-    setclipboard("https://discord.gg/MUnTPtKvhG")
-    StarterGui:SetCore("SendNotification", {
-        Title = "Copied!",
-        Text = "Discord invite copied to clipboard",
-        Duration = 3,
-    })
-end)
-
--- "Check Key" button
-createButton("Check Key", UDim2.new(0.55, 0, 0.6, 0), function()
-    local enteredKey = TextBox.Text
-
-    if enteredKey == "saint1451-9" then
-        -- Key is correct!
+-- Key Checking Logic
+check.MouseButton1Click:Connect(function()
+    if box.Text == correctKey then
         StarterGui:SetCore("SendNotification", {
-            Title = "✅ Key Accepted",
+            Title = "✅ Key Correct",
             Text = "Loading Brainrot Hub...",
-            Duration = 3,
+            Duration = 4
         })
-
-        -- Teleport player to base
-        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-            LocalPlayer.Character.HumanoidRootPart.CFrame = baseCFrame
-        end
-
-        -- Remove UI
-        ScreenGui:Destroy()
-
-        -- Load the hub.lua from your GitHub
-        local success, err = pcall(function()
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/waserarr/brainrot-hub/main/hub.lua"))()
-        end)
-
-        if not success then
-            warn("Failed to load hub.lua:", err)
-            StarterGui:SetCore("SendNotification", {
-                Title = "❌ Load Error",
-                Text = "Could not load Brainrot Hub script.",
-                Duration = 4,
-            })
-        end
-
+        gui:Destroy()
+        loadstring(game:HttpGet(hubURL))()
     else
         StarterGui:SetCore("SendNotification", {
-            Title = "❌ Invalid Key",
-            Text = "Please enter the correct key.",
-            Duration = 3,
+            Title = "❌ Wrong Key",
+            Text = "Get key in Discord",
+            Duration = 4
         })
+    end
+end)
+
+-- Dragging
+local dragging, dragInput, dragStart, startPos
+frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then dragging = false end
+        end)
+    end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+                                   startPos.Y.Scale, startPos.Y.Offset + delta.Y)
     end
 end)
