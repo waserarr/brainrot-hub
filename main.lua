@@ -1,11 +1,15 @@
--- Saint's Brainrot Exploit Hub - Advanced Xeno-Style Full Hub with Key System
+-- Saint's Brainrot Hub Key System with Teleport on Success
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local TweenService = game:GetService("TweenService")
-local UserInputService = game:GetService("UserInputService")
 local StarterGui = game:GetService("StarterGui")
+local UserInputService = game:GetService("UserInputService")
 
+-- Teleport base CFrame (edit this to your base position)
+local baseCFrame = CFrame.new(-50, 10, -50) 
+
+-- Create GUI
 local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
@@ -41,6 +45,7 @@ Title.TextScaled = true
 
 local TextBox = Instance.new("TextBox", MainFrame)
 TextBox.PlaceholderText = "Enter Key Here"
+TextBox.Text = ""
 TextBox.Size = UDim2.new(0.9, 0, 0, 40)
 TextBox.Position = UDim2.new(0.05, 0, 0.3, 0)
 TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -79,20 +84,55 @@ local function createButton(text, pos, callback)
     return Button
 end
 
-createButton("Check Key", UDim2.new(0.05, 0, 0.5, 0), function()
-    if TextBox.Text == "saint1451-9" then
-        MainFrame:Destroy()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/waserarr/brainrot/main/hub.lua"))()
-    else
-        StarterGui:SetCore("SendNotification", {
-            Title = "❌ Invalid Key", Text = "Join the discord and get a valid key.", Duration = 4
-        })
-    end
-end)
-
-createButton("Get Key", UDim2.new(0.55, 0, 0.5, 0), function()
+-- "Get Key" button
+createButton("Get Key", UDim2.new(0.05, 0, 0.6, 0), function()
     setclipboard("https://discord.gg/MUnTPtKvhG")
     StarterGui:SetCore("SendNotification", {
-        Title = "✅ Copied Link", Text = "Discord invite copied to clipboard.", Duration = 3
+        Title = "Copied!",
+        Text = "Discord invite copied to clipboard",
+        Duration = 3,
     })
+end)
+
+-- "Check Key" button
+createButton("Check Key", UDim2.new(0.55, 0, 0.6, 0), function()
+    local enteredKey = TextBox.Text
+
+    if enteredKey == "saint1451-9" then
+        -- Key is correct!
+        StarterGui:SetCore("SendNotification", {
+            Title = "✅ Key Accepted",
+            Text = "Loading Brainrot Hub...",
+            Duration = 3,
+        })
+
+        -- Teleport player to base
+        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            LocalPlayer.Character.HumanoidRootPart.CFrame = baseCFrame
+        end
+
+        -- Remove UI
+        ScreenGui:Destroy()
+
+        -- Load the hub.lua from your GitHub
+        local success, err = pcall(function()
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/waserarr/brainrot-hub/main/hub.lua"))()
+        end)
+
+        if not success then
+            warn("Failed to load hub.lua:", err)
+            StarterGui:SetCore("SendNotification", {
+                Title = "❌ Load Error",
+                Text = "Could not load Brainrot Hub script.",
+                Duration = 4,
+            })
+        end
+
+    else
+        StarterGui:SetCore("SendNotification", {
+            Title = "❌ Invalid Key",
+            Text = "Please enter the correct key.",
+            Duration = 3,
+        })
+    end
 end)
