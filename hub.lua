@@ -1,176 +1,77 @@
--- Saint's Brainrot Exploit Hub (hub.lua)
-
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local TweenService = game:GetService("TweenService")
 local StarterGui = game:GetService("StarterGui")
-local UserInputService = game:GetService("UserInputService")
+local HttpService = game:GetService("HttpService")
 
--- Create main GUI
+-- ScreenGui Setup
 local gui = Instance.new("ScreenGui", game.CoreGui)
-gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+gui.Name = "SaintKeySystem"
 
 local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0, 450, 0, 400)
+frame.Size = UDim2.new(0, 450, 0, 300)
 frame.Position = UDim2.new(0.35, 0, 0.3, 0)
-frame.BackgroundColor3 = Color3.new(0, 0, 0)
+frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 frame.BorderSizePixel = 0
 
--- Shadow Effect
-local shadow = Instance.new("ImageLabel", frame)
-shadow.AnchorPoint = Vector2.new(0.5, 0.5)
-shadow.Position = UDim2.new(0.5, 0, 0.5, 0)
-shadow.Size = UDim2.new(1, 60, 1, 60)
-shadow.BackgroundTransparency = 1
-shadow.Image = "rbxassetid://5554236805"
-shadow.ImageTransparency = 0.5
-shadow.ZIndex = -1
-
-local corner = Instance.new("UICorner", frame)
-corner.CornerRadius = UDim.new(0, 10)
-
 local stroke = Instance.new("UIStroke", frame)
-stroke.Color = Color3.new(1, 1, 1)
+stroke.Color = Color3.fromRGB(60, 60, 60)
 stroke.Thickness = 2
 
--- Title label
+local corner = Instance.new("UICorner", frame)
+corner.CornerRadius = UDim.new(0, 8)
+
+-- Top Title
 local title = Instance.new("TextLabel", frame)
-title.Size = UDim2.new(1, 0, 0, 50)
+title.Size = UDim2.new(1, 0, 0, 40)
+title.Position = UDim2.new(0,0,0,0)
 title.BackgroundTransparency = 1
-title.Text = "Saint's Brainrot Hub 🧠"
-title.TextColor3 = Color3.new(1, 1, 1)
-title.Font = Enum.Font.GothamBlack
+title.Text = "Saint's Brainrot | Key System"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
 title.TextScaled = true
+title.Font = Enum.Font.GothamBold
 
--- WalkSpeed TextBox
-local speedInput = Instance.new("TextBox", frame)
-speedInput.PlaceholderText = "WalkSpeed (Default: 16)"
-speedInput.Text = ""
-speedInput.Size = UDim2.new(0.8, 0, 0, 40)
-speedInput.Position = UDim2.new(0.1, 0, 0.2, 0)
-speedInput.TextColor3 = Color3.new(1, 1, 1)
-speedInput.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-speedInput.Font = Enum.Font.Gotham
-speedInput.TextScaled = true
-speedInput.ClearTextOnFocus = false
-local speedInputCorner = Instance.new("UICorner", speedInput)
-speedInputCorner.CornerRadius = UDim.new(0, 8)
+-- Close Button
+local close = Instance.new("TextButton", frame)
+close.Size = UDim2.new(0, 40, 0, 40)
+close.Position = UDim2.new(1, -45, 0, 5)
+close.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+close.Text = "X"
+close.TextColor3 = Color3.new(1,1,1)
+close.Font = Enum.Font.GothamBold
+close.TextScaled = true
+close.MouseButton1Click:Connect(function() gui:Destroy() end)
+local closeCorner = Instance.new("UICorner", close)
+closeCorner.CornerRadius = UDim.new(0, 6)
 
--- Apply WalkSpeed button
-local applySpeedBtn = Instance.new("TextButton", frame)
-applySpeedBtn.Size = UDim2.new(0.8, 0, 0, 40)
-applySpeedBtn.Position = UDim2.new(0.1, 0, 0.35, 0)
-applySpeedBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-applySpeedBtn.Text = "✅ Apply WalkSpeed"
-applySpeedBtn.TextColor3 = Color3.new(1,1,1)
-applySpeedBtn.Font = Enum.Font.GothamBold
-applySpeedBtn.TextScaled = true
-local applySpeedCorner = Instance.new("UICorner", applySpeedBtn)
-applySpeedCorner.CornerRadius = UDim.new(0, 8)
+-- TextBox
+local box = Instance.new("TextBox", frame)
+box.Size = UDim2.new(0.9, 0, 0, 45)
+box.Position = UDim2.new(0.05, 0, 0.25, 0)
+box.PlaceholderText = "Enter Key"
+box.Text = ""
+box.TextColor3 = Color3.new(1,1,1)
+box.BackgroundColor3 = Color3.fromRGB(35,35,35)
+box.TextScaled = true
+box.Font = Enum.Font.Gotham
+local boxCorner = Instance.new("UICorner", box)
+boxCorner.CornerRadius = UDim.new(0, 6)
 
-applySpeedBtn.MouseEnter:Connect(function()
-    TweenService:Create(applySpeedBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 60, 60)}):Play()
-end)
-applySpeedBtn.MouseLeave:Connect(function()
-    TweenService:Create(applySpeedBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
-end)
+-- Check Key Button
+local check = Instance.new("TextButton", frame)
+check.Size = UDim2.new(0.9, 0, 0, 45)
+check.Position = UDim2.new(0.05, 0, 0.4, 0)
+check.Text = "Check Key"
+check.TextColor3 = Color3.new(1,1,1)
+check.BackgroundColor3 = Color3.fromRGB(40,40,40)
+check.Font = Enum.Font.GothamBold
+check.TextScaled = true
+local checkCorner = Instance.new("UICorner", check)
+checkCorner.CornerRadius = UDim.new(0, 6)
 
-applySpeedBtn.MouseButton1Click:Connect(function()
-    local speed = tonumber(speedInput.Text)
-    if speed and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
-        LocalPlayer.Character.Humanoid.WalkSpeed = speed
-        StarterGui:SetCore("SendNotification", {
-            Title = "✅ Walkspeed Change Successful",
-            Text = "WalkSpeed set to "..speed,
-            Duration = 3,
-        })
-    else
-        StarterGui:SetCore("SendNotification", {
-            Title = "❌ Invalid WalkSpeed",
-            Text = "Please enter a valid number.",
-            Duration = 3,
-        })
-    end
-end)
+-- User PFP + Username + Free Version Footer
+local userIcon = Instance.new("ImageLabel", frame)
+userIcon.Size = UDim2.new(0, 50, 0, 50)
+userIcon.Position = UDim2.new(0.03,0,0.78,0)
+userIcon.BackgroundTransparency = 1
 
--- Instant Steal button
-local instantStealBtn = Instance.new("TextButton", frame)
-instantStealBtn.Size = UDim2.new(0.8, 0, 0, 40)
-instantStealBtn.Position = UDim2.new(0.1, 0, 0.5, 0)
-instantStealBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-instantStealBtn.Text = "💀 INSTANT STEAL 💀"
-instantStealBtn.TextColor3 = Color3.new(1,1,1)
-instantStealBtn.Font = Enum.Font.GothamBold
-instantStealBtn.TextScaled = true
-local instantStealCorner = Instance.new("UICorner", instantStealBtn)
-instantStealCorner.CornerRadius = UDim.new(0, 8)
-
-instantStealBtn.MouseEnter:Connect(function()
-    TweenService:Create(instantStealBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 60, 60)}):Play()
-end)
-instantStealBtn.MouseLeave:Connect(function()
-    TweenService:Create(instantStealBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
-end)
-
-instantStealBtn.MouseButton1Click:Connect(function()
-    local found = false
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character then
-            local tool = player.Character:FindFirstChild("Brainrot")
-            if tool and tool:IsA("Tool") and tool:FindFirstChild("Handle") then
-                found = true
-                -- Teleport you 5 studs above the target player
-                LocalPlayer.Character.HumanoidRootPart.CFrame = player.Character.HumanoidRootPart.CFrame + Vector3.new(0,5,0)
-                wait(0.3)
-                -- Fire touch to pick up the Brainrot tool
-                firetouchinterest(LocalPlayer.Character.HumanoidRootPart, tool.Handle, 0)
-                firetouchinterest(LocalPlayer.Character.HumanoidRootPart, tool.Handle, 1)
-                break
-            end
-        end
-    end
-    if found then
-        StarterGui:SetCore("SendNotification", {
-            Title = "✅ Instant steal activated",
-            Text = "Attempted to steal Brainrot tool.",
-            Duration = 3,
-        })
-    else
-        StarterGui:SetCore("SendNotification", {
-            Title = "❌ No Brainrot found",
-            Text = "No player is holding Brainrot nearby.",
-            Duration = 3,
-        })
-    end
-end)
-
--- Draggable UI logic
-local dragging = false
-local dragInput, dragStart, startPos
-
-frame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        dragging = true
-        dragStart = input.Position
-        startPos = frame.Position
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then
-                dragging = false
-            end
-        end)
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if dragging and input == dragInput then
-        local delta = input.Position - dragStart
-        frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
-            startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
-end)
-
-frame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement then
-        dragInput = input
-    end
-end)
+local username = Instance.new("TextLabel", frame)
